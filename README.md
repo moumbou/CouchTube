@@ -4,6 +4,19 @@ Control YouTube on your computer from your phone. Click the extension, scan the 
 
 No app to install on the phone. The phone just opens a web page.
 
+## What it looks like
+
+<table>
+  <tr>
+    <td width="64%"><img src="screenshots/youtube_window.png" alt="YouTube on the computer with the CouchTube popup showing the pairing QR code"></td>
+    <td width="36%"><img src="screenshots/phone_window.jpeg" alt="The CouchTube remote on a phone: now playing, transport buttons, volume, speed, sleep timer and up next"></td>
+  </tr>
+  <tr>
+    <td><sub><b>On the computer:</b> a YouTube video with the CouchTube popup open. Click the icon, get a QR code.</sub></td>
+    <td><sub><b>On the phone:</b> scan it and this page opens in the browser. Play, seek, volume, speed, fullscreen, sleep timer, and the "Up next" list to pick what plays next.</sub></td>
+  </tr>
+</table>
+
 ```
 ┌──────────────┐   WebSocket    ┌──────────────┐   WebSocket   ┌──────────────┐
 │  Extension   │ ─────────────▶ │  Relay       │ ◀──────────── │  Phone       │
