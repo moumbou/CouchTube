@@ -1,0 +1,20 @@
+{
+  "name": "@couchtube/relay",
+  "version": "1.0.0",
+  "private": true,
+  "description": "WebSocket relay between the extension and phones. Also serves the website (apps/website) and the phone remote (apps/remote).",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "node test/relay.test.js",
+    "check": "node --check src/index.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "ws": "^8.21.3"
+  }
+}

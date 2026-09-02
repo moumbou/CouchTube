@@ -1,0 +1,16 @@
+# dependencies / build output
+node_modules/
+dist/
+
+# planning, launch notes and other non-code material stay local
+docs/
+
+# leftovers from the pre-workspace layout
+_old_layout/
+server/
+
+# os / editor / logs
+*.log
+.DS_Store
+Thumbs.db
+tests/e2e/*.png

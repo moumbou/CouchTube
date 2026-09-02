@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#0f0f0f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>CouchTube Remote</title>
+<style>
+  :root {
+    --bg: #0f0f0f; --panel: #1c1c1e; --panel-2: #262628; --text: #f2f2f2; --muted: #9a9a9a;
+    --accent: #ff3d3d; --accent-2: #ff6b6b; --ok: #34c759; --warn: #ffb020; --radius: 16px;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif; }
+  body { padding: env(safe-area-inset-top) 0 calc(env(safe-area-inset-bottom) + 24px); min-height: 100vh; }
+  button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; }
+  button:active { transform: scale(0.96); }
+  .wrap { max-width: 520px; margin: 0 auto; padding: 14px 16px; display: flex; flex-direction: column; gap: 14px; }
+
+  header { display: flex; align-items: center; justify-content: space-between; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: .2px; }
+  .brand .dot { width: 22px; height: 22px; border-radius: 7px; background: var(--accent); display: grid; place-items: center; }
+  .brand .dot::after { content: ""; border-left: 9px solid #fff; border-top: 5.5px solid transparent; border-bottom: 5.5px solid transparent; margin-left: 2px; }
+  .pill { font-size: 12px; padding: 6px 10px; border-radius: 999px; background: var(--panel-2); color: var(--muted); display: flex; gap: 6px; align-items: center; }
+  .pill::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+  .pill.ok { color: #d6f5dd; } .pill.ok::before { background: var(--ok); }
+  .pill.warn { color: #ffe2a8; } .pill.warn::before { background: var(--warn); }
+  .pill.bad { color: #ffc9c9; } .pill.bad::before { background: var(--accent); }
+
+  .card { background: var(--panel); border-radius: var(--radius); padding: 14px; }
+  .now { display: flex; gap: 12px; align-items: center; }
+  .thumb { width: 96px; height: 54px; border-radius: 10px; background: var(--panel-2); object-fit: cover; flex: none; }
+  .meta { min-width: 0; flex: 1; }
+  .title { font-weight: 600; font-size: 15px; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .channel { color: var(--muted); font-size: 13px; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .scrub { margin-top: 14px; }
+  input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 28px; background: transparent; margin: 0; }
+  input[type=range]::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; background: linear-gradient(to right, var(--accent) var(--fill, 0%), #3a3a3c var(--fill, 0%)); }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; background: #fff; margin-top: -8px; box-shadow: 0 1px 4px rgba(0,0,0,.5); }
+  input[type=range]::-moz-range-track { height: 6px; border-radius: 3px; background: #3a3a3c; }
+  input[type=range]::-moz-range-progress { height: 6px; border-radius: 3px; background: var(--accent); }
+  input[type=range]::-moz-range-thumb { width: 22px; height: 22px; border: 0; border-radius: 50%; background: #fff; }
+  .times { display: flex; justify-content: space-between; color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; margin-top: 2px; }
+
+  .transport { display: grid; grid-template-columns: 1fr 1fr 1.4fr 1fr 1fr; gap: 8px; margin-top: 14px; align-items: center; }
+  .transport button { height: 60px; border-radius: 14px; background: var(--panel-2); display: grid; place-items: center; font-size: 13px; font-weight: 600; }
+  .transport .big { height: 72px; background: #fff; color: #000; border-radius: 20px; }
+  .transport svg { width: 26px; height: 26px; fill: currentColor; }
+  .transport .big svg { width: 34px; height: 34px; }
+  .skip { display: flex; flex-direction: column; gap: 2px; align-items: center; font-size: 11px; color: var(--muted); }
+  .skip b { font-size: 14px; color: var(--text); }
+
+  .row { display: flex; align-items: center; gap: 12px; }
+  .row .icon { width: 36px; display: grid; place-items: center; color: var(--muted); }
+  .row .icon svg { width: 22px; height: 22px; fill: currentColor; }
+  .row.compact { margin-top: 12px; }
+
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+  .chip { padding: 9px 13px; border-radius: 999px; background: var(--panel-2); font-size: 13px; font-weight: 600; color: var(--muted); }
+  .chip.on { background: #fff; color: #000; }
+  .chip.wide { flex: 1; text-align: center; white-space: nowrap; padding: 9px 8px; }
+  #sleep .chip { padding: 9px 6px; }
+  .chip.live-on { background: var(--accent); color: #fff; }
+  .live-tag { display: inline-block; background: var(--accent); color: #fff; font-size: 10px; font-weight: 700; padding: 2px 5px; border-radius: 4px; letter-spacing: .3px; vertical-align: middle; margin-right: 6px; }
+  .ad { display: none; align-items: center; justify-content: space-between; gap: 10px; margin-top: 12px; padding: 10px 12px; border-radius: 12px; background: #3a2d10; color: #ffe2a8; font-size: 13px; }
+  .ad.show { display: flex; }
+  .ad button { padding: 8px 12px; border-radius: 8px; background: #fff; color: #000; font-weight: 700; font-size: 12px; }
+  .section-label { color: var(--muted); font-size: 12px; margin: 14px 0 -4px; }
+  .card-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .card-head h2 { font-size: 15px; margin: 0; font-weight: 700; }
+  .card-head .sub { color: var(--muted); font-size: 12px; margin-top: 2px; }
+  .card-head button { padding: 8px 12px; border-radius: 10px; background: var(--panel-2); font-size: 12px; font-weight: 700; }
+  .card.ended { outline: 2px solid var(--accent); }
+  .result .next { display: inline-block; background: var(--accent); color: #fff; font-size: 10px; font-weight: 700; padding: 2px 5px; border-radius: 4px; margin-right: 6px; vertical-align: middle; }
+  .sleep-info { color: var(--muted); font-size: 12px; margin-top: 8px; text-align: center; }
+
+  .search { display: flex; gap: 8px; }
+  .search input { flex: 1; height: 46px; border-radius: 12px; border: 0; background: var(--panel-2); color: var(--text); padding: 0 14px; font-size: 16px; outline: none; }
+  .search input::placeholder { color: var(--muted); }
+  .search button { width: 46px; height: 46px; border-radius: 12px; background: var(--accent); display: grid; place-items: center; }
+  .search svg { width: 20px; height: 20px; fill: #fff; }
+  .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+
+  .results { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+  .result { display: flex; gap: 10px; align-items: center; padding: 8px; border-radius: 12px; background: transparent; text-align: left; width: 100%; }
+  .result:active { background: var(--panel-2); }
+  .result img { width: 112px; height: 63px; object-fit: cover; border-radius: 8px; background: var(--panel-2); flex: none; }
+  .result .t { font-size: 14px; font-weight: 500; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .result .c { color: var(--muted); font-size: 12px; margin-top: 3px; }
+  .result .d { position: absolute; right: 4px; bottom: 4px; font-size: 11px; background: rgba(0,0,0,.8); padding: 1px 4px; border-radius: 4px; }
+  .result .th { position: relative; flex: none; }
+  .empty { color: var(--muted); font-size: 14px; text-align: center; padding: 18px 8px; }
+
+  .banner { border-radius: var(--radius); padding: 14px; background: #2a1d1d; color: #ffd5d5; font-size: 14px; line-height: 1.45; }
+  .banner b { color: #fff; }
+  .hidden { display: none !important; }
+  .toast { position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom) + 20px); transform: translate(-50%, 20px); opacity: 0; pointer-events: none; background: #fff; color: #000; padding: 10px 14px; border-radius: 12px; font-size: 13px; max-width: 90vw; text-align: center; transition: .25s; }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+  footer { color: var(--muted); font-size: 12px; text-align: center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand"><span class="dot"></span>CouchTube</div>
+    <div class="pill" id="status">Connecting…</div>
+  </header>
+
+  <div class="banner hidden" id="noCode">
+    <b>No pairing code.</b> Open the CouchTube extension on your computer and scan the QR code it shows.
+  </div>
+
+  <section class="card" id="player">
+    <div class="now">
+      <img class="thumb" id="thumb" alt="">
+      <div class="meta">
+        <div class="title"><span class="live-tag hidden" id="liveTag">LIVE</span><span id="title">Nothing playing</span></div>
+        <div class="channel" id="channel">Open a YouTube video on your computer</div>
+      </div>
+    </div>
+
+    <div class="scrub">
+      <input type="range" id="scrub" min="0" max="1000" value="0" step="1" aria-label="Seek">
+      <div class="times"><span id="cur">0:00</span><span id="dur">0:00</span></div>
+    </div>
+
+    <div class="transport">
+      <button data-cmd="prev" aria-label="Previous">
+        <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
+      </button>
+      <button data-cmd="seek" data-value="-10" class="skip" aria-label="Back 10 seconds"><b>−10</b>sec</button>
+      <button data-cmd="toggle" class="big" id="playBtn" aria-label="Play or pause">
+        <svg id="iconPlay" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        <svg id="iconPause" viewBox="0 0 24 24" class="hidden"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>
+      </button>
+      <button data-cmd="seek" data-value="10" class="skip" aria-label="Forward 10 seconds"><b>+10</b>sec</button>
+      <button data-cmd="next" aria-label="Next">
+        <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6zM16 6h2v12h-2z"/></svg>
+      </button>
+    </div>
+
+    <div class="ad" id="ad"><span>Ad playing…</span><button data-cmd="skipAd" id="skipAd">Skip ad</button></div>
+
+    <div class="row compact">
+      <button class="icon" data-cmd="mute" id="muteBtn" aria-label="Mute">
+        <svg id="iconVol" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9zm13.5 3A4.5 4.5 0 0 0 14 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+        <svg id="iconMuted" viewBox="0 0 24 24" class="hidden"><path d="M16.5 12A4.5 4.5 0 0 0 14 7.97v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51A8.8 8.8 0 0 0 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3 3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06a8.99 8.99 0 0 0 3.69-1.81L19.73 21 21 19.73l-8.5-8.5L4.27 3zM12 4 9.91 6.09 12 8.18V4z"/></svg>
+      </button>
+      <input type="range" id="vol" min="0" max="100" value="100" aria-label="Volume">
+    </div>
+
+    <div class="chips" id="rates">
+      <button class="chip wide" data-rate="0.75">0.75×</button>
+      <button class="chip wide on" data-rate="1">1×</button>
+      <button class="chip wide" data-rate="1.25">1.25×</button>
+      <button class="chip wide" data-rate="1.5">1.5×</button>
+      <button class="chip wide" data-rate="2">2×</button>
+    </div>
+    <div class="chips">
+      <button class="chip wide" data-cmd="like" id="likeBtn">♥ Like</button>
+      <button class="chip wide" data-cmd="captions" id="ccBtn">Captions</button>
+      <button class="chip wide" data-cmd="theater">Theater</button>
+      <button class="chip wide" data-cmd="fullscreen" id="fsBtn">Fullscreen</button>
+    </div>
+    <div class="chips">
+      <button class="chip wide" data-cmd="autoplay" id="autoplayBtn">Autoplay</button>
+      <button class="chip wide" data-cmd="replay">↺ Replay</button>
+    </div>
+    <div class="chips hidden" id="liveRow">
+      <button class="chip wide" data-cmd="goLive" id="goLive">● Jump to live</button>
+    </div>
+
+    <div class="section-label">Sleep timer</div>
+    <div class="chips" id="sleep">
+      <button class="chip wide" data-sleep="0">Off</button>
+      <button class="chip wide" data-sleep="15">15m</button>
+      <button class="chip wide" data-sleep="30">30m</button>
+      <button class="chip wide" data-sleep="45">45m</button>
+      <button class="chip wide" data-sleep="60">1h</button>
+      <button class="chip wide" data-sleep="90">1h30</button>
+    </div>
+    <div class="sleep-info hidden" id="sleepInfo"></div>
+  </section>
+
+  <section class="card" id="upnext">
+    <div class="card-head">
+      <div><h2 id="upnextTitle">Up next</h2><div class="sub" id="upnextSub">Suggestions for the current video</div></div>
+      <button data-cmd="replay" id="replayBtn" class="hidden">↺ Replay</button>
+    </div>
+    <div class="results" id="upnextList"><div class="empty">Play a video to see suggestions.</div></div>
+  </section>
+
+  <section class="card">
+    <form class="search" id="searchForm">
+      <input id="q" type="search" placeholder="Search YouTube" autocomplete="off" enterkeyhint="search">
+      <button type="submit" aria-label="Search"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg></button>
+    </form>
+    <div class="tabs">
+      <button class="chip" data-cmd="home">Home</button>
+      <button class="chip" data-cmd="subscriptions">Subscriptions</button>
+      <button class="chip" data-cmd="live">● Live now</button>
+      <button class="chip" data-cmd="related">↻ Up next</button>
+    </div>
+    <div class="results" id="results"><div class="empty">Search for something or open a feed.</div></div>
+  </section>
+
+  <footer><span id="roomInfo"></span> · <a href="/" style="color:inherit">Get CouchTube for your own computer</a></footer>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const statusEl = $('status');
+
+  // ---- pairing info from the QR: /r/#ROOM.TOKEN ----
+  const hash = location.hash.replace(/^#/, '');
+  const [room, token] = hash.split('.');
+  if (!room || !token) {
+    $('noCode').classList.remove('hidden');
+    $('player').classList.add('hidden');
+    setStatus('No code', 'bad');
+    return;
+  }
+  $('roomInfo').textContent = `Room ${room}`;
+
+  // ---- websocket with reconnect ----
+  let ws = null, retry = 0, hostOnline = false;
+  function wsUrl() {
+    const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+    return `${proto}://${location.host}/ws?role=remote&room=${encodeURIComponent(room)}&token=${encodeURIComponent(token)}`;
+  }
+  function connect() {
+    setStatus('Connecting…', '');
+    ws = new WebSocket(wsUrl());
+    ws.onopen = () => { retry = 0; };
+    ws.onmessage = (e) => { let m; try { m = JSON.parse(e.data); } catch { return; } handle(m); };
+    ws.onclose = (e) => {
+      if (e.code === 4001) { setStatus('Invalid or expired code', 'bad'); return; } // don't retry a bad room
+      if (e.code === 4002) { setStatus('Session ended', 'bad'); return; }
+      setStatus('Reconnecting…', 'warn');
+      setTimeout(connect, Math.min(1000 * 2 ** retry++, 8000));
+    };
+  }
+  function send(action, value) {
+    if (!ws || ws.readyState !== 1) return;
+    ws.send(JSON.stringify({ type: 'cmd', action, value }));
+    if (navigator.vibrate) navigator.vibrate(8);
+  }
+  setInterval(() => { if (ws && ws.readyState === 1) ws.send(JSON.stringify({ type: 'ping' })); }, 20000);
+
+  function setStatus(text, cls) { statusEl.textContent = text; statusEl.className = 'pill ' + (cls || ''); }
+  let toastTimer = null;
+  function toast(text) {
+    const t = $('toast'); t.textContent = text; t.classList.add('show');
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
+  }
+
+  function handle(m) {
+    switch (m.type) {
+      case 'joined':
+        hostOnline = m.hostConnected;
+        setStatus(hostOnline ? 'Connected' : 'Waiting for computer…', hostOnline ? 'ok' : 'warn');
+        break;
+      case 'peer':
+        if (m.role === 'host') { hostOnline = m.connected; setStatus(hostOnline ? 'Connected' : 'Computer offline', hostOnline ? 'ok' : 'warn'); }
+        break;
+      case 'state': renderState(m); break;
+      case 'results': renderResults(m); break;
+      case 'notice': toast(m.text); break;
+      case 'error': setStatus(m.code === 'bad_room' ? 'Invalid code' : 'Error', 'bad'); break;
+    }
+  }
+
+  // ---- player rendering ----
+  let dragging = false, lastState = null;
+  const fmt = (s) => {
+    s = Math.max(0, Math.floor(s || 0));
+    const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+    return (h ? h + ':' + String(m).padStart(2, '0') : m) + ':' + String(sec).padStart(2, '0');
+  };
+  function renderState(s) {
+    lastState = s;
+    if (!s.hasVideo) {
+      $('title').textContent = 'Nothing playing';
+      $('channel').textContent = s.pageTitle ? s.pageTitle : 'Open a YouTube video on your computer';
+      $('thumb').removeAttribute('src');
+      $('liveTag').classList.add('hidden'); $('liveRow').classList.add('hidden'); $('ad').classList.remove('show');
+      setEnded(false);
+      renderSleep(s.sleepUntil);
+      return;
+    }
+    $('title').textContent = s.title || 'Untitled';
+    $('channel').textContent = s.channel || '';
+    if (s.thumb && $('thumb').getAttribute('src') !== s.thumb) { $('thumb').style.visibility = ''; $('thumb').src = s.thumb; }
+    if (!dragging && s.duration > 0) {
+      const v = Math.round((s.currentTime / s.duration) * 1000);
+      $('scrub').value = v; $('scrub').style.setProperty('--fill', (v / 10) + '%');
+    }
+    $('cur').textContent = fmt(s.currentTime); $('dur').textContent = fmt(s.duration);
+    $('iconPlay').classList.toggle('hidden', !s.paused);
+    $('iconPause').classList.toggle('hidden', s.paused);
+    if (!volDragging) $('vol').value = Math.round((s.volume ?? 1) * 100);
+    $('iconVol').classList.toggle('hidden', !!s.muted);
+    $('iconMuted').classList.toggle('hidden', !s.muted);
+    document.querySelectorAll('#rates .chip').forEach((c) => c.classList.toggle('on', Number(c.dataset.rate) === Number(s.rate || 1)));
+    $('liveTag').classList.toggle('hidden', !s.live);
+    $('liveRow').classList.toggle('hidden', !s.live);
+    $('goLive').classList.toggle('live-on', !!s.atLiveEdge);
+    $('goLive').textContent = s.atLiveEdge ? '● Live' : '● Jump to live';
+    $('dur').textContent = s.live ? 'LIVE' : fmt(s.duration);
+    $('fsBtn').classList.toggle('on', !!s.fullscreen);
+    $('ccBtn').classList.toggle('on', !!s.captions);
+    $('likeBtn').classList.toggle('on', !!s.liked);
+    $('likeBtn').textContent = s.liked ? '♥ Liked' : '♥ Like';
+    $('ad').classList.toggle('show', !!s.ad);
+    $('skipAd').classList.toggle('hidden', !s.canSkip);
+    $('autoplayBtn').classList.toggle('on', !!s.autoplay);
+    $('autoplayBtn').textContent = s.autoplay ? 'Autoplay on' : 'Autoplay off';
+    setEnded(!!s.ended);
+    renderSleep(s.sleepUntil);
+  }
+
+  // ---- "video ended" mode for the Up next card ----
+  let endedNow = false;
+  function setEnded(ended) {
+    if (ended === endedNow) return;
+    endedNow = ended;
+    $('upnext').classList.toggle('ended', ended);
+    $('replayBtn').classList.toggle('hidden', !ended);
+    $('upnextTitle').textContent = ended ? 'Video ended' : 'Up next';
+    $('upnextSub').textContent = ended ? 'Pick what to watch next' : 'Suggestions for the current video';
+    if (ended) $('upnext').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // ---- sleep timer ----
+  let sleepUntil = null;
+  function renderSleep(until) {
+    sleepUntil = until || null;
+    document.querySelectorAll('#sleep .chip').forEach((c) => c.classList.toggle('on', !sleepUntil && c.dataset.sleep === '0'));
+    tickSleep();
+  }
+  function tickSleep() {
+    const info = $('sleepInfo');
+    if (!sleepUntil || sleepUntil < Date.now()) { info.classList.add('hidden'); return; }
+    const left = Math.ceil((sleepUntil - Date.now()) / 60000);
+    info.textContent = `Pausing in ${left} min`;
+    info.classList.remove('hidden');
+  }
+  setInterval(tickSleep, 15000);
+  document.querySelectorAll('[data-sleep]').forEach((b) => b.addEventListener('click', () => {
+    send('sleep', Number(b.dataset.sleep));
+    document.querySelectorAll('#sleep .chip').forEach((c) => c.classList.toggle('on', c === b));
+  }));
+
+  $('thumb').addEventListener('error', () => { $('thumb').style.visibility = 'hidden'; });
+
+  // seek bar
+  const scrub = $('scrub');
+  scrub.addEventListener('pointerdown', () => { dragging = true; });
+  scrub.addEventListener('input', () => {
+    scrub.style.setProperty('--fill', (scrub.value / 10) + '%');
+    if (lastState?.duration) $('cur').textContent = fmt((scrub.value / 1000) * lastState.duration);
+  });
+  const commitSeek = () => {
+    if (!dragging) return;
+    dragging = false;
+    if (lastState?.duration) send('seekTo', (scrub.value / 1000) * lastState.duration);
+  };
+  scrub.addEventListener('pointerup', commitSeek);
+  scrub.addEventListener('pointercancel', commitSeek);
+  scrub.addEventListener('change', commitSeek);
+
+  // volume
+  let volDragging = false, volTimer = null;
+  const vol = $('vol');
+  vol.addEventListener('pointerdown', () => { volDragging = true; });
+  vol.addEventListener('input', () => {
+    clearTimeout(volTimer);
+    volTimer = setTimeout(() => send('volume', vol.value / 100), 60);
+  });
+  const volDone = () => { volDragging = false; send('volume', vol.value / 100); };
+  vol.addEventListener('pointerup', volDone);
+  vol.addEventListener('change', volDone);
+
+  // buttons
+  document.querySelectorAll('[data-cmd]').forEach((b) => {
+    b.addEventListener('click', () => {
+      const v = b.dataset.value !== undefined ? Number(b.dataset.value) : undefined;
+      send(b.dataset.cmd, v);
+      if (['home', 'subscriptions', 'live'].includes(b.dataset.cmd)) loading(b.textContent.replace('● ', ''));
+      if (b.dataset.cmd === 'related') $('upnextList').innerHTML = '<div class="empty">Refreshing…</div>';
+    });
+  });
+  document.querySelectorAll('[data-rate]').forEach((b) => b.addEventListener('click', () => send('rate', Number(b.dataset.rate))));
+
+  // search
+  $('searchForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const q = $('q').value.trim();
+    if (!q) return;
+    send('search', q);
+    loading(`"${q}"`);
+    $('q').blur();
+  });
+
+  function loading(label) {
+    $('results').innerHTML = `<div class="empty">Loading ${escapeHtml(label)}…</div>`;
+  }
+  function escapeHtml(s) { return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+
+  function renderResults(m) {
+    const toUpnext = m.kind === 'related' || m.kind === 'endscreen';
+    const list = toUpnext ? $('upnextList') : $('results');
+    if (toUpnext) $('upnextSub').textContent = m.kind === 'endscreen' ? 'What YouTube suggests after this video' : (endedNow ? 'Pick what to watch next' : 'Suggestions for the current video');
+    if (!m.items || !m.items.length) { list.innerHTML = '<div class="empty">No results found.</div>'; return; }
+    list.innerHTML = '';
+    for (const it of m.items.slice(0, 40)) {
+      const btn = document.createElement('button');
+      btn.className = 'result';
+      btn.innerHTML = `
+        <span class="th"><img loading="lazy" alt="">${it.live ? '<span class="d" style="background:var(--accent)">LIVE</span>' : it.duration ? `<span class="d">${escapeHtml(it.duration)}</span>` : ''}</span>
+        <span><div class="t">${it.autoplayNext ? '<span class="next">NEXT</span>' : ''}${escapeHtml(it.title)}</div><div class="c">${escapeHtml(it.channel || '')}${it.live && it.viewers ? ` · ${escapeHtml(it.viewers)} watching` : it.meta ? ` · ${escapeHtml(it.meta)}` : ''}</div></span>`;
+      const img = btn.querySelector('img');
+      img.addEventListener('error', () => { img.style.visibility = 'hidden'; });
+      if (it.thumb) img.src = it.thumb;
+      btn.addEventListener('click', () => { send('open', it.url); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+      list.appendChild(btn);
+    }
+  }
+
+  // ---- keep the screen on while the remote is open ----
+  let lock = null;
+  async function keepAwake() {
+    try { if ('wakeLock' in navigator && document.visibilityState === 'visible') lock = await navigator.wakeLock.request('screen'); } catch {}
+  }
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { keepAwake(); if (ws?.readyState !== 1) connect(); } });
+  keepAwake();
+  connect();
+})();
+</script>
+</body>
+</html>

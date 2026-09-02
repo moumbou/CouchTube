@@ -1,0 +1,20 @@
+{
+  "name": "couchtube",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Your phone is the remote for YouTube on your computer. Chrome extension + relay + phone remote + website.",
+  "license": "MIT",
+  "packageManager": "pnpm@10.28.0",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @couchtube/relay dev",
+    "start": "pnpm --filter @couchtube/relay start",
+    "test": "pnpm --filter @couchtube/relay test",
+    "e2e": "pnpm --filter @couchtube/e2e test",
+    "check": "pnpm -r --if-present check",
+    "build:extension": "pnpm --filter @couchtube/extension build",
+    "brand:render": "pnpm --filter @couchtube/brand render"
+  }
+}

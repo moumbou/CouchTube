@@ -1,0 +1,7 @@
+{
+  "name": "@couchtube/remote",
+  "version": "1.0.0",
+  "private": true,
+  "description": "The phone remote: a single static page served by the relay at /r/. No build step.",
+  "license": "MIT"
+}

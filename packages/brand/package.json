@@ -1,0 +1,13 @@
+{
+  "name": "@couchtube/brand",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Logo sources (SVG) and the script that renders every PNG: extension icons, store tiles, lockups.",
+  "scripts": {
+    "render": "node scripts/render.js && node scripts/render-icon16.js"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "playwright": "^1.50.0"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "@couchtube/extension",
+  "version": "1.0.0",
+  "private": true,
+  "description": "The Chrome extension (Manifest V3, no build step). Load this folder unpacked, or run `pnpm build` to get the zip for the Chrome Web Store.",
+  "scripts": {
+    "check": "node --check background.js && node --check content.js && node --check bridge.js && node --check popup.js",
+    "build": "node scripts/zip.js"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "adm-zip": "^0.5.16"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "name": "@couchtube/website",
+  "version": "1.0.0",
+  "private": true,
+  "description": "The landing page and privacy policy, served by the relay at /. Static, no build step. Set CHROME_STORE_URL in index.html once the extension is published.",
+  "license": "MIT"
+}
