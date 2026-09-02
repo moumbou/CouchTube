@@ -7,6 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>CouchTube Remote</title>
+<link rel="icon" href="/assets/logo.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/assets/og-mark.png">
 <style>
   :root {
     --bg: #0f0f0f; --panel: #1c1c1e; --panel-2: #262628; --text: #f2f2f2; --muted: #9a9a9a;
@@ -21,8 +23,8 @@
 
   header { display: flex; align-items: center; justify-content: space-between; }
   .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: .2px; }
-  .brand .dot { width: 22px; height: 22px; border-radius: 7px; background: var(--accent); display: grid; place-items: center; }
-  .brand .dot::after { content: ""; border-left: 9px solid #fff; border-top: 5.5px solid transparent; border-bottom: 5.5px solid transparent; margin-left: 2px; }
+  .brand img { width: 26px; height: 26px; border-radius: 7px; }
+  .brand .accent { color: var(--accent); }
   .pill { font-size: 12px; padding: 6px 10px; border-radius: 999px; background: var(--panel-2); color: var(--muted); display: flex; gap: 6px; align-items: center; }
   .pill::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
   .pill.ok { color: #d6f5dd; } .pill.ok::before { background: var(--ok); }
@@ -105,7 +107,7 @@
 <body>
 <div class="wrap">
   <header>
-    <div class="brand"><span class="dot"></span>CouchTube</div>
+    <div class="brand"><img src="/assets/logo.svg" alt=""><span>Couch<span class="accent">Tube</span></span></div>
     <div class="pill" id="status">Connecting…</div>
   </header>
 
@@ -303,7 +305,7 @@
     $('cur').textContent = fmt(s.currentTime); $('dur').textContent = fmt(s.duration);
     $('iconPlay').classList.toggle('hidden', !s.paused);
     $('iconPause').classList.toggle('hidden', s.paused);
-    if (!volDragging) $('vol').value = Math.round((s.volume ?? 1) * 100);
+    if (!volDragging) setVol(Math.round((s.volume ?? 1) * 100));
     $('iconVol').classList.toggle('hidden', !!s.muted);
     $('iconMuted').classList.toggle('hidden', !s.muted);
     document.querySelectorAll('#rates .chip').forEach((c) => c.classList.toggle('on', Number(c.dataset.rate) === Number(s.rate || 1)));
@@ -377,8 +379,12 @@
   // volume
   let volDragging = false, volTimer = null;
   const vol = $('vol');
+  const paintVol = () => vol.style.setProperty('--fill', vol.value + '%');
+  const setVol = (v) => { vol.value = v; paintVol(); };
+  paintVol();
   vol.addEventListener('pointerdown', () => { volDragging = true; });
   vol.addEventListener('input', () => {
+    paintVol();
     clearTimeout(volTimer);
     volTimer = setTimeout(() => send('volume', vol.value / 100), 60);
   });
