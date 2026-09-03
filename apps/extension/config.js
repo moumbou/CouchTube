@@ -7,7 +7,7 @@
 
 const COUCHTUBE_CONFIG = {
   relay: {
-    production: 'wss://couchtube.app',      // the public relay (set this to your deployed server)
+    production: 'wss://relay.couchtube.app',      // the public relay (set this to your deployed server)
     development: 'ws://localhost:8787',     // `pnpm dev` on this machine
   },
 };
