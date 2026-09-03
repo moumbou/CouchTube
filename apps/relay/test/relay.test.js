@@ -3,6 +3,8 @@
 // Run with: npm test
 
 process.env.PORT = '0';
+process.env.MAX_ROOMS_PER_IP = '8';
+process.env.MAX_CONNS_PER_IP = '12';
 const assert = require('assert');
 const { WebSocket } = require('ws');
 const { server } = require('../src/index.js');
@@ -81,6 +83,19 @@ const once = (ws, pred) => new Promise((resolve) => {
   assert.strictEqual(page.status, 200);
   assert.ok((await page.text()).includes('CouchTube'));
   console.log('✓ http static + health');
+
+  // 9. per-IP limits: room creation is rate limited, and the limited socket is closed with 4029
+  const extra = [];
+  let limited = false;
+  for (let i = 0; i < 12; i++) {
+    const h = new WebSocket(`${base}?role=host`);
+    extra.push(h);
+    const code = await new Promise((resolve) => { h.on('message', (raw) => { const m = JSON.parse(raw.toString()); if (m.type === 'room') resolve(0); if (m.type === 'error') resolve(m.code); }); h.on('close', (c) => resolve(c)); });
+    if (code === 'rate_limited' || code === 4029) { limited = true; break; }
+  }
+  assert.ok(limited, 'room creation gets rate limited per IP');
+  extra.forEach((h) => { try { h.close(); } catch {} });
+  console.log('✓ per-IP rate limit on room creation');
 
   remote.close(); host2.close();
   await wait(50);

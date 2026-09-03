@@ -15,6 +15,8 @@
     else { pill.textContent = 'Connecting…'; pill.className = 'pill warn'; }
 
     $('remotes').textContent = s.remotes || 0;
+    $('devBadge').classList.toggle('hidden', !s.isDev);
+    $('relayHint').textContent = `Default: ${s.defaultRelay}${s.isDev ? ' (unpacked = development)' : ''}`;
     $('toggle').textContent = s.enabled ? 'Pause' : 'Start';
     $('relay').placeholder = s.relayUrl;
     if (document.activeElement !== $('relay') && !$('relay').value) $('relay').value = s.relayUrl;
@@ -47,6 +49,7 @@
   $('toggle').addEventListener('click', async () => render(await call({ type: 'popup:toggle' })));
   $('saveRelay').addEventListener('click', async () => render(await call({ type: 'popup:setRelay', url: $('relay').value })));
   $('relay').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('saveRelay').click(); });
+  $('resetRelay').addEventListener('click', async () => { $('relay').value = ''; render(await call({ type: 'popup:setRelay', url: '' })); });
 
   chrome.runtime.onMessage.addListener((m) => { if (m?.type === 'status') render(m.status); });
   call({ type: 'popup:getStatus' }).then(render);

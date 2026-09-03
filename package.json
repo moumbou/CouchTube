@@ -4,6 +4,10 @@
   "private": true,
   "description": "Your phone is the remote for YouTube on your computer. Chrome extension + relay + phone remote + website.",
   "license": "MIT",
+  "author": {
+    "name": "Bouzidi Abderrahim",
+    "email": "mbouzidi63@gmail.com"
+  },
   "packageManager": "pnpm@10.28.0",
   "engines": {
     "node": ">=18"

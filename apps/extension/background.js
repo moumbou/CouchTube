@@ -8,7 +8,8 @@
 // a WebSocket exchanges messages at least every 30s, so we ping every 20s and use
 // an alarm as a safety net to reconnect if the worker was restarted.
 
-const DEFAULT_RELAY = 'ws://localhost:8787/ws';
+importScripts('config.js'); // COUCHTUBE_DEFAULT_RELAY: localhost when loaded unpacked, the public relay when installed from a store
+const DEFAULT_RELAY = COUCHTUBE_DEFAULT_RELAY;
 const PING_MS = 20_000;
 
 let ws = null;
@@ -50,7 +51,7 @@ function saveSession() {
 // ---------- popup notifications ----------
 function status() {
   const { relayUrl, enabled, room, remoteUrl, connected, remotes, error, lastState } = S;
-  return { relayUrl, enabled, room, remoteUrl, connected, remotes, error, nowPlaying: lastState?.hasVideo ? lastState.title : null };
+  return { relayUrl, defaultRelay: DEFAULT_RELAY, isDev: COUCHTUBE_IS_DEV, enabled, room, remoteUrl, connected, remotes, error, nowPlaying: lastState?.hasVideo ? lastState.title : null };
 }
 function notifyPopup() {
   chrome.runtime.sendMessage({ type: 'status', status: status() }).catch(() => {});

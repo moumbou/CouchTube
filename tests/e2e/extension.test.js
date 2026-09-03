@@ -80,7 +80,10 @@ process.on('exit', () => { try { relay?.kill(); } catch {} });
   const remoteUrl = await popup.textContent('#url');
   assert.match(remoteUrl, /^http:\/\/127\.0\.0\.1:8787\/r\/#[A-Z2-9]{6}\.[\w-]+$/);
   assert.strictEqual(await popup.textContent('#status'), 'Ready to pair');
-  console.log('✓ popup renders QR for', remoteUrl);
+  // loaded unpacked => development mode => default relay is localhost, DEV badge visible
+  await popup.waitForSelector('#devBadge:not(.hidden)', { timeout: 3000 });
+  assert.ok((await popup.textContent('#relayHint')).includes('ws://localhost:8787'), 'dev default relay');
+  console.log('✓ popup renders QR for', remoteUrl, '(DEV mode detected, localhost relay by default)');
 
   // 4. open a fake youtube watch page
   const yt = await ctx.newPage();

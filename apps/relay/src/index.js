@@ -12,6 +12,7 @@
 //   PORT         port to listen on (default 8787)
 //   PUBLIC_URL   base URL the phone should use (default: http://<LAN IP>:PORT)
 //                set this when deployed, e.g. https://couchtube.example.com
+//                (Railway's RAILWAY_PUBLIC_DOMAIN and Render's RENDER_EXTERNAL_URL are picked up automatically)
 //   WEBSITE_DIR  override the website folder (default ../../website)
 //   REMOTE_DIR   override the remote folder  (default ../../remote)
 
@@ -26,7 +27,11 @@ let PORT = process.env.PORT !== undefined && process.env.PORT !== '' ? Number(pr
 const WEBSITE_DIR = path.resolve(process.env.WEBSITE_DIR || path.join(__dirname, '..', '..', 'website'));
 const REMOTE_DIR = path.resolve(process.env.REMOTE_DIR || path.join(__dirname, '..', '..', 'remote'));
 const ROOM_GRACE_MS = 10 * 60 * 1000; // keep a room alive 10 min after its host drops
-const MAX_ROOMS = 5000;
+const MAX_ROOMS = Number(process.env.MAX_ROOMS) || 5000;
+// abuse limits, per client IP (the real IP behind Railway / Cloudflare / any proxy)
+const MAX_CONNS_PER_IP = Number(process.env.MAX_CONNS_PER_IP) || 40;        // simultaneous sockets
+const MAX_ROOMS_PER_IP_WINDOW = Number(process.env.MAX_ROOMS_PER_IP) || 60;  // rooms created per window
+const ROOM_WINDOW_MS = 10 * 60 * 1000;
 
 // ---------- helpers ----------
 
@@ -49,6 +54,9 @@ function lanIp() {
 
 function publicBaseUrl() {
   if (process.env.PUBLIC_URL) return process.env.PUBLIC_URL.replace(/\/+$/, '');
+  // zero-config on common hosts: they expose their own public domain as an env var
+  if (process.env.RAILWAY_PUBLIC_DOMAIN) return `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`;
+  if (process.env.RENDER_EXTERNAL_URL) return process.env.RENDER_EXTERNAL_URL.replace(/\/+$/, '');
   return `http://${lanIp()}:${PORT}`;
 }
 
@@ -69,6 +77,30 @@ function safeEqual(a, b) {
 function send(ws, obj) {
   if (ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(obj));
 }
+
+// ---------- per-IP limits ----------
+
+function clientIp(req) {
+  const xff = req.headers['x-forwarded-for'];
+  if (typeof xff === 'string' && xff.length) return xff.split(',')[0].trim();
+  return req.socket.remoteAddress || 'unknown';
+}
+const connsByIp = new Map();   // ip -> open socket count
+const roomsByIp = new Map();   // ip -> { count, windowStart }
+function tooManyConnections(ip) { return (connsByIp.get(ip) || 0) >= MAX_CONNS_PER_IP; }
+function trackConnection(ip, delta) {
+  const n = (connsByIp.get(ip) || 0) + delta;
+  if (n <= 0) connsByIp.delete(ip); else connsByIp.set(ip, n);
+}
+function roomCreationAllowed(ip) {
+  const now = Date.now();
+  let e = roomsByIp.get(ip);
+  if (!e || now - e.windowStart > ROOM_WINDOW_MS) { e = { count: 0, windowStart: now }; roomsByIp.set(ip, e); }
+  if (e.count >= MAX_ROOMS_PER_IP_WINDOW) return false;
+  e.count++;
+  return true;
+}
+setInterval(() => { const now = Date.now(); for (const [ip, e] of roomsByIp) if (now - e.windowStart > ROOM_WINDOW_MS) roomsByIp.delete(ip); }, 60 * 1000).unref();
 
 // ---------- rooms ----------
 
@@ -159,6 +191,10 @@ const wss = new WebSocketServer({ server, path: '/ws', maxPayload: 64 * 1024 });
 wss.on('connection', (ws, req) => {
   const q = new URL(req.url, 'http://x').searchParams;
   const role = q.get('role');
+  const ip = clientIp(req);
+  if (tooManyConnections(ip)) { send(ws, { type: 'error', code: 'too_many_connections' }); return ws.close(4029, 'too many connections'); }
+  trackConnection(ip, 1);
+  ws.on('close', () => trackConnection(ip, -1));
   ws.isAlive = true;
   ws.on('pong', () => { ws.isAlive = true; });
 
@@ -168,7 +204,10 @@ wss.on('connection', (ws, req) => {
     // A host may try to resume its previous room so the QR on screen stays valid
     const wanted = rooms.get((q.get('room') || '').toUpperCase());
     if (wanted && safeEqual(wanted.token, q.get('token') || '')) room = wanted;
-    else room = createRoom();
+    else {
+      if (!roomCreationAllowed(ip)) { send(ws, { type: 'error', code: 'rate_limited' }); return ws.close(4029, 'rate limited'); }
+      room = createRoom();
+    }
     room.hosts.add(ws);
     room.hostLeftAt = null;
     ws.role = 'host';

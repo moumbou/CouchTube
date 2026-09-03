@@ -15,6 +15,7 @@
   .pill { font-size: 11px; padding: 4px 9px; border-radius: 999px; background: var(--panel-2); color: var(--muted); display: flex; gap: 6px; align-items: center; }
   .pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--muted); }
   .pill.ok::before { background: var(--ok); } .pill.warn::before { background: var(--warn); } .pill.bad::before { background: var(--accent); }
+  .dev { font-size: 10px; font-weight: 700; letter-spacing: .06em; background: var(--warn); color: #000; border-radius: 6px; padding: 2px 6px; margin-left: 6px; vertical-align: middle; }
 
   .qr { background: #fff; border-radius: 14px; padding: 12px; display: grid; place-items: center; min-height: 200px; }
   .qr svg { width: 100%; height: auto; display: block; }
@@ -42,7 +43,7 @@
 <body>
 <div class="wrap">
   <header>
-    <div class="brand"><span class="dot"></span>CouchTube</div>
+    <div class="brand"><span class="dot"></span>CouchTube <span class="dev hidden" id="devBadge">DEV</span></div>
     <div class="pill" id="status">Connecting…</div>
   </header>
 
@@ -59,9 +60,10 @@
 
   <details>
     <summary>Relay server</summary>
-    <label for="relay">WebSocket URL (local: ws://localhost:8787, deployed: wss://your-domain)</label>
+    <label for="relay">WebSocket URL (ws://localhost:8787 for a local relay, wss://your-domain when deployed)</label>
     <input id="relay" placeholder="ws://localhost:8787">
-    <div class="row" style="margin-top:8px"><button id="saveRelay">Save & reconnect</button></div>
+    <div id="relayHint" style="color:var(--muted);font-size:11px;margin-top:6px"></div>
+    <div class="row" style="margin-top:8px"><button id="saveRelay">Save & reconnect</button><button id="resetRelay">Use default</button></div>
   </details>
 </div>
 <script src="vendor/qrcode.js"></script>

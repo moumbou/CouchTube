@@ -36,6 +36,7 @@ couchtube/
 ├── apps/
 │   ├── extension/      the Chrome extension (Manifest V3). Load this folder unpacked.
 │   │   ├── manifest.json
+│   │   ├── config.js       relay URLs: production (store install) vs development (loaded unpacked)
 │   │   ├── background.js   service worker: WebSocket to the relay, tab/window management, routing
 │   │   ├── content.js      isolated world: state reporting, scraping of video lists, web-fullscreen CSS
 │   │   ├── bridge.js       page (MAIN) world: drives YouTube's real player API
@@ -110,7 +111,7 @@ The relay is a single Node process with no database, so any Node host works: Rai
    - `PORT` (most hosts set this for you)
    - `PUBLIC_URL=https://your-domain.com` (this is what goes into the QR)
    The host must support WebSockets (all the ones above do). Use HTTPS: the phone page then automatically uses `wss://`.
-2. In the extension popup, open **Relay server** and set `wss://your-domain.com`, then **Save & reconnect**. (Or change `DEFAULT_RELAY` in `background.js` before publishing.)
+2. Put your relay's address in `apps/extension/config.js` (`relay.production`). The extension picks it automatically when installed from a store, and uses `ws://localhost:8787` when loaded unpacked (Chrome injects an `update_url` into store installs; its absence means development). No build flag needed. The popup's **Relay server** setting still overrides either, which is handy for testing a deployed relay from an unpacked extension.
 3. To publish on the Chrome Web Store: `pnpm build:extension` gives you the zip in `dist/`, use the tiles and icon in `packages/brand/`, add real screenshots, and link the privacy policy at `https://your-domain/privacy.html`.
 4. In `apps/website/index.html`, set `CHROME_STORE_URL` once the listing is live so the site's buttons point to the store.
 

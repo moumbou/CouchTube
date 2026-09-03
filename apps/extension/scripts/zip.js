@@ -9,7 +9,7 @@ const manifest = JSON.parse(fs.readFileSync(path.join(ROOT, 'manifest.json'), 'u
 const OUT_DIR = path.resolve(ROOT, '..', '..', 'dist');
 const OUT = path.join(OUT_DIR, `couchtube-extension-${manifest.version}.zip`);
 
-const INCLUDE = ['manifest.json', 'background.js', 'content.js', 'bridge.js', 'popup.html', 'popup.js', 'icons', 'vendor'];
+const INCLUDE = ['manifest.json', 'config.js', 'background.js', 'content.js', 'bridge.js', 'popup.html', 'popup.js', 'icons', 'vendor'];
 
 fs.mkdirSync(OUT_DIR, { recursive: true });
 const zip = new AdmZip();
