@@ -339,7 +339,7 @@
       <h2>Ready when you are.</h2>
       <p class="lead" style="margin: 14px auto 28px">Free, open source, no account. Twenty seconds from install to lying down.</p>
       <a class="btn primary" href="#" data-store>Add to Chrome, it's free</a>
-      <p class="muted" style="font-size:14px;margin-top:16px">Not on the Web Store yet? <a href="https://github.com/moumbou/couchtube#run-it-locally-same-wi-fi">Install from GitHub</a> in two minutes.</p>
+      <p class="muted" style="font-size:14px;margin-top:16px">Prefer to build it yourself? <a href="https://github.com/moumbou/couchtube#run-it-locally-same-wi-fi">Install from GitHub</a> in two minutes.</p>
     </div>
   </div>
 </section>
@@ -353,7 +353,7 @@
 
 <script>
   // Set this to the Chrome Web Store URL once the extension is published.
-  const CHROME_STORE_URL = '';
+  const CHROME_STORE_URL = 'https://chromewebstore.google.com/detail/bdhcjbhpllbifhnoklhacnnimahfpcij';
   document.querySelectorAll('[data-store]').forEach((a) => { if (CHROME_STORE_URL) { a.href = CHROME_STORE_URL; a.target = '_blank'; a.rel = 'noopener'; } else if (a.getAttribute('href') === '#') a.href = 'https://github.com/moumbou/couchtube#run-it-locally-same-wi-fi'; });
   document.getElementById('year').textContent = new Date().getFullYear();
   // demo QR in the laptop mockup (a real QR, pointing at a demo room that does not exist)

@@ -4,6 +4,8 @@ Control YouTube on your computer from your phone. Click the extension, scan the 
 
 No app to install on the phone. The phone just opens a web page.
 
+**[Add CouchTube to Chrome](https://chromewebstore.google.com/detail/bdhcjbhpllbifhnoklhacnnimahfpcij)** (free, also works in Edge and Brave) · Website: [couchtube.app](https://couchtube.app)
+
 ## What it looks like
 
 <table>
@@ -71,6 +73,8 @@ couchtube/
 | `pnpm brand:render` | re-renders icons, tiles and lockups from the SVG logo |
 
 ## Run it locally (same Wi-Fi)
+
+You only need this to hack on the code. To just use CouchTube, install it from the [Chrome Web Store](https://chromewebstore.google.com/detail/bdhcjbhpllbifhnoklhacnnimahfpcij).
 
 1. Start the relay
 
