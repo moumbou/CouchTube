@@ -186,6 +186,10 @@ The e2e test needs full Chromium (extensions don't run in the headless shell): `
 - YouTube changes its DOM regularly and currently ships two markups side by side (Polymer `ytd-*` components and camelCase "view model" classes such as `ytLockupMetadataViewModelTitle`). The scraper matches both with substring selectors, but "lists look empty" is the first thing to check after a YouTube redesign (`scrapeOnce` / `CONTAINERS` in `apps/extension/content.js`).
 - Only `www.youtube.com` for now. YouTube Music (`music.youtube.com`) needs the same bridge with different selectors.
 
+## Author
+
+Built by [Abderrahim Bouzidi](https://bouzidi-abderrahim.dev), a full-stack developer (React, Next.js, TypeScript, Node). More projects on the [portfolio](https://bouzidi-abderrahim.dev), [GitHub](https://github.com/moumbou) and [LinkedIn](https://www.linkedin.com/in/abderrahim-bouzidi-310724195).
+
 ## License
 
 MIT. `apps/extension/vendor/qrcode.js` is MIT, © Kazuhiko Arase.

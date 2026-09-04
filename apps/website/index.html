@@ -149,6 +149,14 @@
   details p { color: var(--muted); margin-top: 12px; max-width: 760px; }
   .faq { max-width: 820px; }
 
+  /* maker */
+  .maker { background: var(--bg-2); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .maker .box { display: grid; grid-template-columns: 160px 1fr; gap: 36px; align-items: center; background: var(--panel); border: 1px solid var(--line); border-radius: 24px; padding: 36px; }
+  .maker img { width: 160px; height: 160px; border-radius: 20px; object-fit: cover; display: block; }
+  .maker p { color: var(--muted); margin-top: 12px; max-width: 640px; }
+  .maker .links { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 22px; }
+  @media (max-width: 640px) { .maker .box { grid-template-columns: 1fr; } .maker img { width: 120px; height: 120px; } }
+
   /* cta + footer */
   .cta { text-align: center; }
   .cta .box { background: linear-gradient(135deg, rgba(255,90,69,.18), rgba(255,122,61,.06)); border: 1px solid rgba(255,90,69,.3); border-radius: 24px; padding: 64px 32px; }
@@ -329,6 +337,26 @@
       <details><summary>Firefox? Safari? Edge?</summary><p>Edge and Brave work today, since they run Chrome extensions. Firefox is planned. Safari is not, for now.</p></details>
       <details><summary>Can I run my own relay?</summary><p>Yes. The relay is a single Node.js file. Run it, point the extension at it in the popup's settings, and nothing ever touches our server.</p></details>
       <details><summary>Is CouchTube affiliated with YouTube or Google?</summary><p>No. It is an independent, open-source project. YouTube is a trademark of Google LLC.</p></details>
+      <details><summary>Who makes CouchTube?</summary><p>One person: Abderrahim Bouzidi, a full-stack developer based in Algeria. The extension, the relay and this site are all his work. You can see his other projects at <a href="https://bouzidi-abderrahim.dev" target="_blank" rel="noopener">bouzidi-abderrahim.dev</a>.</p></details>
+    </div>
+  </div>
+</section>
+
+<section id="maker" class="maker">
+  <div class="wrap">
+    <div class="box">
+      <img src="/assets/maker.webp" alt="Abderrahim Bouzidi" width="160" height="160">
+      <div>
+        <span class="eyebrow">Who made this</span>
+        <h2>Hi, I'm Abderrahim.</h2>
+        <p>I'm a full-stack developer who builds web apps for a living, and CouchTube started as a fix for my own evenings: I wanted to pause YouTube from bed without getting up. Everything here is my work, from the extension to the relay server, and the code is open for anyone to read.</p>
+        <p>If you build products and need someone who ships end to end, have a look at my other projects.</p>
+        <div class="links">
+          <a class="btn primary small" href="https://bouzidi-abderrahim.dev" target="_blank" rel="noopener">See my work</a>
+          <a class="btn ghost small" href="https://github.com/moumbou" target="_blank" rel="noopener">GitHub</a>
+          <a class="btn ghost small" href="https://www.linkedin.com/in/abderrahim-bouzidi-310724195" target="_blank" rel="noopener">LinkedIn</a>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -346,7 +374,7 @@
 
 <footer>
   <div class="wrap">
-    <div>© <span id="year"></span> CouchTube · Made with a couch and too many tabs. Not affiliated with YouTube or Google.</div>
+    <div>© <span id="year"></span> CouchTube · Made by <a href="https://bouzidi-abderrahim.dev" target="_blank" rel="noopener" style="margin-left:0;color:var(--text)">Abderrahim Bouzidi</a>. Not affiliated with YouTube or Google.</div>
     <div><a href="/privacy.html">Privacy</a><a href="https://github.com/moumbou/couchtube" target="_blank" rel="noopener">GitHub</a><a href="https://github.com/moumbou/couchtube/issues" target="_blank" rel="noopener">Report a bug</a></div>
   </div>
 </footer>

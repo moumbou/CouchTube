@@ -5,8 +5,9 @@
   "description": "Your phone is the remote for YouTube on your computer. Chrome extension + relay + phone remote + website.",
   "license": "MIT",
   "author": {
-    "name": "Bouzidi Abderrahim",
-    "email": "mbouzidi63@gmail.com"
+    "name": "Abderrahim Bouzidi",
+    "email": "mbouzidi63@gmail.com",
+    "url": "https://bouzidi-abderrahim.dev"
   },
   "packageManager": "pnpm@10.28.0",
   "engines": {
